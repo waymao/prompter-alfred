@@ -1,13 +1,16 @@
-FROM nvidia/cudagl:11.4.2-devel-ubuntu20.04
+#FROM nvidia/cudagl:11.4.2-devel-ubuntu20.04
+#FROM ubuntu:22.04
+FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04
 
 # ============================================================================
 
 # ============================================================================
 # install via apt
-RUN apt update
-RUN apt install sudo
+RUN apt-get update
+RUN apt-get install sudo
 
-Run DEBIAN_FRONTEND=noninteractive apt-get install -y \
+# continue apt
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     build-essential \
     git \
     curl \
@@ -20,9 +23,14 @@ Run DEBIAN_FRONTEND=noninteractive apt-get install -y \
     libx11-dev \
     libomp-dev \
     libegl1-mesa-dev \
-    pkg-config
+    pkg-config \
+    libnvidia-gl-535=535.129.03-0ubuntu1 \
+    nvidia-utils-535=535.129.03-0ubuntu1 \
+    libnvidia-compute-535=535.129.03-0ubuntu1 \
+    libnvidia-common-535=535.129.03-0ubuntu1 \
+    libglvnd-dev
 
-Run DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     wget \
     zip \
     htop \
@@ -36,7 +44,7 @@ Run DEBIAN_FRONTEND=noninteractive apt-get install -y \
     openssh-client \
     unzip
 
-Run DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     htop \
     libopenni-dev \
     apt-utils \
@@ -69,19 +77,24 @@ RUN cmake --version
 
 # ============================================================================
 # miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-py37_4.10.3-Linux-x86_64.sh
-RUN bash Miniconda3-py37_4.10.3-Linux-x86_64.sh -b
-RUN rm Miniconda3-py37_4.10.3-Linux-x86_64.sh
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+RUN bash Miniconda3-latest-Linux-x86_64.sh -b
+RUN rm Miniconda3-latest-Linux-x86_64.sh
 
-ENV PATH=/root/miniconda3/bin:${PATH}
-RUN conda config --remove channels defaults
-RUN conda config --add channels conda-forge
+ENV PATH /root/miniconda3/bin:${PATH}
+RUN conda init
+RUN conda config --add channels conda-forge && \
+    conda install -n base conda-libmamba-solver && \
+    conda config --set solver libmamba && \
+    conda create --name prompter python=3.6 opencv numpy h5py numba "pytorch<2" "torchvision<1" "cudatoolkit>=11" -c pytorch -c nvidia
+ENV PATH /root/miniconda3/envs/prompter/bin/:${PATH}
 
-RUN conda install python=3.6
+# Install detectron2
+RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html --trusted-host dl.fbaipublicfiles.com
 
 # requirements.txt
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+COPY requirements.txt /root/requirements.txt
+RUN pip install -r /root/requirements.txt
 # ============================================================================
 
 # ============================================================================
@@ -103,16 +116,10 @@ RUN git clone https://github.com/facebookresearch/habitat-lab.git
 RUN /bin/bash -c "cd habitat-lab; git checkout tags/v0.1.5; pip install -e ."
 
 # Install project specific packages
-RUN apt-get update; apt-get install -y libsm6 libxext6 libxrender-dev; pip install opencv-python
+RUN apt-get update; apt-get install -y libsm6 libxext6 libxrender-dev
 RUN pip install --upgrade cython
 RUN pip install matplotlib seaborn==0.9.0 scikit-fmm==2019.1.30 imageio==2.6.0 scikit-learn==0.22.2.post1 ifcfg numpy numba
 RUN pip install scikit-image
-
-# Install pytorch
-RUN conda install pytorch=1.6.0 torchvision=0.7.0 cudatoolkit=10.2 -c pytorch
-
-# Install detectron2
-RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html --trusted-host dl.fbaipublicfiles.com
 
 RUN pip install einops plotly kaleido transformers
 
