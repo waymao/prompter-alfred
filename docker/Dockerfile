@@ -86,11 +86,12 @@ RUN conda init
 RUN conda config --add channels conda-forge && \
     conda install -n base conda-libmamba-solver && \
     conda config --set solver libmamba && \
-    conda create --name prompter python=3.6 opencv numpy h5py numba "pytorch<2" "torchvision<1" "cudatoolkit>=11" -c pytorch -c nvidia
+    conda create --name prompter python=3.6 opencv numpy h5py numba "pytorch=1.10" "torchvision" "cudatoolkit=11.3" -c pytorch -c nvidia
 ENV PATH /root/miniconda3/envs/prompter/bin/:${PATH}
 
 # Install detectron2
-RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu102/torch1.6/index.html --trusted-host dl.fbaipublicfiles.com
+RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html --trusted-host dl.fbaipublicfiles.com
+
 
 # requirements.txt
 COPY requirements.txt /root/requirements.txt
