@@ -89,14 +89,12 @@ RUN conda config --add channels conda-forge && \
     conda create --name prompter python=3.6 opencv numpy h5py numba "pytorch=1.10" "torchvision" "cudatoolkit=11.3" -c pytorch -c nvidia
 ENV PATH /root/miniconda3/envs/prompter/bin/:${PATH}
 
-# Install detectron2
-RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html --trusted-host dl.fbaipublicfiles.com
-
-
 # requirements.txt
 COPY requirements.txt /root/requirements.txt
 RUN pip install -r /root/requirements.txt
-# ============================================================================
+
+# Install detectron2
+RUN python -m pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu113/torch1.10/index.html --trusted-host dl.fbaipublicfiles.com
 
 # ============================================================================
 # installation-related
