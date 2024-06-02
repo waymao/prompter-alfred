@@ -338,6 +338,7 @@ def main():
         goal_maps[e][global_goals[e][0], global_goals[e][1]] = 1
 
     planner_inputs = [{} for e in range(num_scenes)]
+    # initialize planner_inputs to random everything
     for e, p_input in enumerate(planner_inputs):
         p_input['map_pred'] = local_map[e, 0, :, :].cpu().numpy()
         p_input['exp_pred'] = local_map[e, 1, :, :].cpu().numpy()
@@ -388,6 +389,7 @@ def main():
                     list_of_actions_s[e], list_of_actions_pointer_s[e]-1, whether_sliced_s[e])
                 if returned:
                     consecutive_interaction_s[e] = list_of_actions_s[e][list_of_actions_pointer_s[e]][1]
+                import pdb; pdb.set_trace()
 
                 infos = envs.reset_goal(
                     reset_goal_true_false, goal_name, consecutive_interaction_s)

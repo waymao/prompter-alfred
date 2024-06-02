@@ -88,7 +88,7 @@ def main():
 
     base_imgd = f"../pictures/{split_name}/{run_name}"
     trial_ids = parseSplitInfo(split_name, split_info_fname=split_info_fname)
-    datad = f"../alfred_data_all/json_2.1.0/{split_name}"
+    datad = f"../alfred_data_all/json_feat_2.1.0/{split_name}"
     for trial_num, trial_id in enumerate(trial_ids):
         if (runs is not None) and (trial_num not in runs):
             continue

@@ -79,6 +79,7 @@ class Sem_Exp_Env_Agent_Thor(ThorEnvCode):
         
         self.test_dict = read_test_dict(
             self.args.test, self.args.language_granularity, 'unseen' in self.args.eval_split)
+        # import pdb; pdb.set_trace()
 
         #Segmentation
         self.seg = SemgnetationHelper(self)
@@ -89,7 +90,7 @@ class Sem_Exp_Env_Agent_Thor(ThorEnvCode):
 
     
     def load_traj(self, scene_name):
-        json_dir = 'alfred_data_all/json_2.1.0/' + scene_name['task'] + '/pp/ann_' + str(scene_name['repeat_idx']) + '.json'
+        json_dir = 'alfred_data_all/json_feat_2.1.0/' + scene_name['task'] + '/pp/ann_' + str(scene_name['repeat_idx']) + '.json'
         traj_data = json.load(open(json_dir))
         return traj_data
 
@@ -155,9 +156,15 @@ class Sem_Exp_Env_Agent_Thor(ThorEnvCode):
 
             task_type = get_arguments_test(self.test_dict, traj_data)[1]
             sliced = get_arguments_test(self.test_dict, traj_data)[-1]
+            
+            # list_of_actions is the list of high-level actions
+            # categories_in_inst is the list objects in the instruction
+            # second_object is the second object in the instruction, only used for pick two objects.
+            # caution_pointers marks the indices of the plan where caution is needed
             list_of_actions, categories_in_inst, second_object, caution_pointers = get_list_of_highlevel_actions(
                 traj_data, self.test_dict, self.args.nonsliced)
 
+            # import pdb; pdb.set_trace()
             self.sliced = sliced
             self.caution_pointers = caution_pointers
             if self.args.no_caution_pointers:
@@ -472,6 +479,10 @@ class Sem_Exp_Env_Agent_Thor(ThorEnvCode):
         return on_path_back, ready_to_slice
 
     def consecutive_interaction(self, interaction, interaction_mask):
+        """
+        Does the interaction (non-navigation actions), updates internal state,
+        and returns the observation, reward, done, info, and success
+        """
         if interaction == "PutObject" and self.last_action_ogn == "OpenObject":
             interaction_mask = self.open_mask
         elif interaction == "CloseObject":
@@ -952,6 +963,9 @@ class Sem_Exp_Env_Agent_Thor(ThorEnvCode):
         return not is_same_goal
 
     def interactionProcess(self, interaction_fn, needs_centering, planner_inputs, interaction_mask):
+        """
+        Runs the actions. If the agent needs to center the object (navigate), it will center first.
+        """
         action = None
         obs, rew, done, info, goal_success, err = None, None, None, None, False, None
         abort_centering = False

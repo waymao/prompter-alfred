@@ -20,7 +20,7 @@ def make_vec_envs(args):
 # Adapted from https://github.com/ikostrikov/pytorch-a2c-ppo-acktr-gail/blob/master/a2c_ppo_acktr/envs.py#L159
 class VecPyTorch():
 
-    def __init__(self, venv, device):
+    def __init__(self, venv: Sem_Exp_Env_Agent_Thor, device):
         self.venv = venv
         self.num_envs = venv.num_envs
         self.observation_space = venv.observation_space

@@ -12,7 +12,7 @@ def cleanInstruction(instruction):
 
 
 index_jsonfname = "../../../alfred_data_small/splits/oct21.json"
-trajectory_dname = "../../../alfred_data_all/json_2.1.0"
+trajectory_dname = "../../../alfred_data_all/json_feat_2.1.0"
 with open(index_jsonfname, 'rb') as f:
     index_json = json.load(f)
 

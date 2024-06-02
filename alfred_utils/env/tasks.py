@@ -461,6 +461,7 @@ def get_task(task_type, traj, env, args, reward_type='sparse', max_episode_lengt
     task_class_str = task_type.replace('_', ' ').title().replace(' ', '') + "Task"
 
     if task_class_str in globals():
+        # import pdb; pdb.set_trace()
         task = globals()[task_class_str]
         print("task is ", task)
         return task(traj, env, args, reward_type=reward_type, max_episode_length=max_episode_length, task_type_optional=task_type_optional)
